@@ -36,25 +36,38 @@ export default class App extends Component {
 
     render (){
 
+        const itemList = (
+            <ItemList
+                onItemSelected={this.onItemSelected}
+                getData={this.swapiService.getAllPeople}
+                renderItem={({name, gender, birthYear})=>`${name} (${gender}, ${birthYear})`}
+            />
+        );
+        const personDetails = (
+            <PersonDetails personId={this.state.selectedPerson} loading={this.state.loading} personLoaded={this.personLoaded}/>
+        );
+
         return (
             <div>
                 <Header />
                 <RandomPlanet />
 
-                <div className="row mb2">
-                    <div className="col-md-6">
-                        <ItemList onItemSelected={this.onItemSelected} getData={this.swapiService.getAllPeople}/>
-                    </div>
-                    <div className="col-md-6">
-                        <PersonDetails personId={this.state.selectedPerson} loading={this.state.loading} personLoaded={this.personLoaded}/>
-                    </div>
-
-                    <div className="col-md-6">
-                        <ItemList onItemSelected={this.onItemSelected} getData={this.swapiService.getAllPlanets}/>
-                    </div>
-                </div>
+                <Row left={itemList} rigth={personDetails}/>
             </div>
         );
     }
 
+}
+
+const Row = ({left, rigth})=>{
+    return (
+        <div className="row mb2">
+            <div className="col-md-6">
+                {left}
+            </div>
+            <div className="col-md-6">
+                {rigth}
+            </div>
+        </div>
+    )
 }
