@@ -1,64 +1,44 @@
-import React, { Component } from 'react';
-import SwapiService from '../../services/swapi-service'
+import React from 'react';
+import PropTypes from 'prop-types';
 
+import { withData } from '../hoc-helpers';
+import SwapiService from '../../services/swapi-service';
 import './item-list.css';
-import Spinner from "../spinner";
 
-export default class ItemList extends Component {
+const ItemList = (props) => {
 
-    state = {
-        itemList: null
-    };
+  const { data, onItemSelected, children: renderLabel } = props;
 
-    componentDidMount() {
+  const items = data.map((item) => {
+    const { id } = item;
+    const label = renderLabel(item);
 
-        const {getData} = this.props;
+    return (
+      <li className="list-group-item"
+          key={id}
+          onClick={() => onItemSelected(id)}>
+        {label}
+      </li>
+    );
+  });
 
-        getData()
-            .then((itemList)=>{
-                this.setState({
-                    itemList
-                })
-            })
-            .catch(this.onError)
-    }
+  return (
+    <ul className="item-list list-group">
+      {items}
+    </ul>
+  );
+};
 
-    onError = (err) => {
-        this.setState({
-            error: true,
-            loading: false
-        });
-    };
+ItemList.defaultProps = {
+  onItemSelected: () => {}
+};
 
-    renderItems(arr){
-        return arr.map((item)=>{
-            const {id} = item;
-            const lable = this.props.renderItem(item);
+ItemList.propTypes = {
+  onItemSelected: PropTypes.func,
+  data: PropTypes.arrayOf(PropTypes.object).isRequired,
+  children: PropTypes.func.isRequired
+};
 
-            return (
-                <li className="list-group-item"
-                    key={id}
-                    onClick={() => this.props.onItemSelected(id, true)}>
-                    {lable}
-                </li>
-            )
-        })
-    }
+const { getAllPeople } = new SwapiService();
 
-    render() {
-
-        const {itemList} = this.state;
-
-        if (!itemList){
-            return <Spinner/>
-        }
-
-        const items = this.renderItems(itemList);
-
-        return (
-            <ul className="item-list list-group">
-               {items}
-            </ul>
-        );
-    }
-}
+export default withData(ItemList, getAllPeople);
